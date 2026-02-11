@@ -4,7 +4,7 @@ import "./globals.css";
 import { NavigationMenuDemo } from "@/components/navbar";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import Image from "next/image";
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,7 +31,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <div className="flex w-full align-middle justify-between p-5 bg-transparent relative">
+        <div className="flex w-full items-center justify-between p-5 bg-transparent relative">
           <Link href="/" className="font-bold">Saddam Rafiansyach</Link>
           <NavigationMenuDemo />
           <Button>Contact</Button>
