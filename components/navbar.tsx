@@ -34,25 +34,26 @@ export function NavigationMenuDemo() {
           <NavigationMenuTrigger>Getting Started</NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul className="w-96">
-              <ListItem href="/about" title="Introduction">
-                lets know each othere more.
-              </ListItem>
+ <ul className="w-96">
+   <ListItem href="/about" title="Introduction">
+     Let's get to know each other more.
+   </ListItem>
 
-              <ListItem href="/projects" title="Projects">
-                Lets look my projects here
-              </ListItem>
+   <ListItem href="/projects" title="Projects">
+     Let's look at my projects here.
+   </ListItem>
 
-              <ListItem href="/Timeline" title="Expirience">
-                lets see how long i have been training for this
-              </ListItem>
-            </ul>
+   <ListItem href="/timeline" title="Experience">
+     Let's see how long I have been training for this.
+   </ListItem>
+ </ul>            </ul>
           </NavigationMenuContent>
         </NavigationMenuItem>
         <NavigationMenuItem>
           <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
             <Link href="/about">About</Link>
           </NavigationMenuLink>
-        </NavigationMenuItem>{" "}
+        </NavigationMenuItem>
       </NavigationMenuList>
     </NavigationMenu>
   );
