@@ -37,13 +37,11 @@ export function NavigationMenuDemo() {
               <ListItem href="/about" title="Introduction">
                 lets know each othere more.
               </ListItem>
-            </ul>
-            <ul className="w-96">
+
               <ListItem href="/projects" title="Projects">
                 Lets look my projects here
               </ListItem>
-            </ul>
-            <ul className="w-96">
+
               <ListItem href="/Timeline" title="Expirience">
                 lets see how long i have been training for this
               </ListItem>
@@ -52,9 +50,9 @@ export function NavigationMenuDemo() {
         </NavigationMenuItem>
         <NavigationMenuItem>
           <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-            <Link href="/about">Home</Link>
+            <Link href="/about">About</Link>
           </NavigationMenuLink>
-        </NavigationMenuItem>
+        </NavigationMenuItem>{" "}
       </NavigationMenuList>
     </NavigationMenu>
   );
