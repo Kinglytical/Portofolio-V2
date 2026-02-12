@@ -4,7 +4,16 @@ import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 're
 import { gsap } from 'gsap';
 
 const useMedia = (queries: string[], values: number[], defaultValue: number): number => {
-  const get = () => values[queries.findIndex(q => matchMedia(q).matches)] ?? defaultValue;
+  const get = () => {
+  if (typeof window === "undefined") return defaultValue;
+
+  const index = queries.findIndex((q) =>
+    window.matchMedia(q).matches
+  );
+
+  return values[index] ?? defaultValue;
+};
+
 
   const [value, setValue] = useState<number>(get);
 

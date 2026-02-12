@@ -5,41 +5,64 @@ import Masonry from "@/components/Masonry";
 const items = [
   {
     id: "1",
-    img: "https://picsum.photos/id/1015/600/900?grayscale",
-    url: "https://example.com/one",
+    img: "https://picsum.photos/id/180/600/900",
+    url: "#",
     height: 400,
   },
   {
     id: "2",
-    img: "https://picsum.photos/id/1011/600/750?grayscale",
-    url: "https://example.com/two",
+    img: "https://picsum.photos/id/1/600/750",
+    url: "#",
     height: 250,
   },
   {
     id: "3",
-    img: "https://picsum.photos/id/1020/600/800?grayscale",
-    url: "https://example.com/three",
+    img: "https://picsum.photos/id/20/600/800",
+    url: "#",
     height: 600,
   },
   {
     id: "4",
-    img: "https://picsum.photos/id/1025/600/800?grayscale",
-    url: "https://example.com/four",
+    img: "https://picsum.photos/id/119/600/800",
+    url: "#",
     height: 300,
   },
   {
     id: "5",
-    img: "https://picsum.photos/id/1035/600/800?grayscale",
-    url: "https://example.com/five",
+    img: "https://picsum.photos/id/48/600/800",
+    url: "#",
     height: 500,
   },
   {
     id: "6",
-    img: "https://picsum.photos/id/1045/600/800?grayscale",
-    url: "https://example.com/six",
+    img: "https://picsum.photos/id/60/600/800",
+    url: "#",
     height: 350,
   },
 ];
+
+// Buat Deployment
+// const items = [
+//   {
+//     id: "1",
+//     img: "/projects/dashboard.png",
+//     url: "#",
+//     height: 400,
+//   },
+//   {
+//     id: "2",
+//     img: "/projects/ecommerce.png",
+//     url: "#",
+//     height: 300,
+//   },
+//   {
+//     id: "3",
+//     img: "/projects/analytics.png",
+//     url: "#",
+//     height: 500,
+//   },
+// ];
+
 
 export default function Home() {
   return (
