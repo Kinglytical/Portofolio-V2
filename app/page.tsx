@@ -2,6 +2,16 @@ import Threads from "@/components/Threads";
 import { Button } from "@/components/ui/button";
 import Masonry from "@/components/Masonry";
 
+import {
+  SiReact,
+  SiNextdotjs,
+  SiNodedotjs,
+  SiPostgresql,
+  SiGoogleanalytics,
+} from "react-icons/si";
+import { FaSearch, FaChartLine } from "react-icons/fa";
+import Skills from "@/components/skills";
+
 const items = [
   {
     id: "1",
@@ -63,7 +73,6 @@ const items = [
 //   },
 // ];
 
-
 export default function Home() {
   return (
     <section className="text-white">
@@ -93,9 +102,7 @@ export default function Home() {
 
           <div className="flex flex-wrap justify-center gap-3 pt-4">
             <Button size="lg">View Projects</Button>
-            <Button size="lg">
-              Contact Me
-            </Button>
+            <Button size="lg">Contact Me</Button>
           </div>
         </div>
       </section>
@@ -103,22 +110,22 @@ export default function Home() {
       {/* ABOUT SECTION */}
       <section className="bg-[#5a5370] px-6 py-20">
         <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-2">
-          
           {/* LEFT */}
           <div className="space-y-6">
             <h2 className="text-3xl font-bold">About Me</h2>
 
             <p className="text-gray-200 leading-relaxed">
-              I'm Saddam Rafiansyach, a Full Stack Developer with a background in
-              Business Analysis. I enjoy building web applications that don’t just
-              work, but actually solve problems and make processes more efficient.
+              I'm Saddam Rafiansyach, a Full Stack Developer with a background
+              in Business Analysis. I enjoy building web applications that don’t
+              just work, but actually solve problems and make processes more
+              efficient.
             </p>
 
             <p className="text-gray-200 leading-relaxed">
               With experience in development and data handling, I turn business
               needs into practical and scalable digital solutions. I focus on
-              writing clean, maintainable code while understanding how systems are
-              used in real workflows.
+              writing clean, maintainable code while understanding how systems
+              are used in real workflows.
             </p>
 
             <Button size="lg">Explore More</Button>
@@ -140,6 +147,7 @@ export default function Home() {
           </div>
         </div>
       </section>
+      <Skills/>
     </section>
   );
 }
