@@ -2,14 +2,6 @@ import Threads from "@/components/Threads";
 import { Button } from "@/components/ui/button";
 import Masonry from "@/components/Masonry";
 
-import {
-  SiReact,
-  SiNextdotjs,
-  SiNodedotjs,
-  SiPostgresql,
-  SiGoogleanalytics,
-} from "react-icons/si";
-import { FaSearch, FaChartLine } from "react-icons/fa";
 import Skills from "@/components/skills";
 
 const items = [
