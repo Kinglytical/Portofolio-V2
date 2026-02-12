@@ -21,8 +21,9 @@ import {
 //   },
 // ];
 
-export function NavigationMenuDemo() {
+export function Navbar() {
   return (
+    
     <NavigationMenu>
       <NavigationMenuList>
         <NavigationMenuItem>
@@ -34,7 +35,7 @@ export function NavigationMenuDemo() {
           <NavigationMenuTrigger>Getting Started</NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul className="w-96">
-              <ListItem href="/about" title="Introduction">
+              <ListItem href="/Introduction" title="Introduction">
                 lets know each othere more.
               </ListItem>
 
@@ -52,7 +53,7 @@ export function NavigationMenuDemo() {
           <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
             <Link href="/about">About</Link>
           </NavigationMenuLink>
-        </NavigationMenuItem>{" "}
+        </NavigationMenuItem>
       </NavigationMenuList>
     </NavigationMenu>
   );
