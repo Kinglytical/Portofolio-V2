@@ -1,7 +1,7 @@
 import Threads from "@/components/Threads";
 import { Button } from "@/components/ui/button";
 import Masonry from "@/components/Masonry";
-
+import Projects from "@/components/project";
 import Skills from "@/components/skills";
 
 const items = [
@@ -139,7 +139,8 @@ export default function Home() {
           </div>
         </div>
       </section>
-      <Skills/>
+      <Skills />
+      <Projects />
     </section>
   );
 }
