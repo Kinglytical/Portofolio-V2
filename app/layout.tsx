@@ -12,8 +12,8 @@ import {
   SheetTitle,
   SheetDescription,
 } from "@/components/ui/sheet";
-
 import Link from "next/link";
+import Script from "next/script"; // ✅ ADD
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -37,9 +37,23 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <head>
+        {/* ✅ Google tag (gtag.js) */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-HWQ2DMCQLH"
+          strategy="afterInteractive"
+        />
+        <Script id="ga4-init" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-HWQ2DMCQLH');
+          `}
+        </Script>
+      </head>
+
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <div className="sticky top-0 z-50 w-full border-b bg-white">
           <div className="max-w-6xl mx-auto flex items-center justify-between px-6 py-4">
             {/* LEFT */}
@@ -59,14 +73,9 @@ export default function RootLayout({
 
             {/* MOBILE */}
             <div className="md:hidden">
-              {/* hamburger tetap */}
               <Sheet>
                 <SheetTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="rounded-full"
-                  >
+                  <Button variant="outline" size="icon" className="rounded-full">
                     <Menu className="h-5 w-5" />
                   </Button>
                 </SheetTrigger>
@@ -93,6 +102,7 @@ export default function RootLayout({
             </div>
           </div>
         </div>
+
         {children}
       </body>
     </html>
