@@ -71,14 +71,14 @@ export default function Home() {
     <section className="text-white">
       {/* HERO SECTION */}
       <section className="relative flex h-screen w-full items-center justify-center overflow-hidden bg-[#5a5370] px-5 text-center">
-        <div className="absolute inset-0">
+        {/* <div className="absolute inset-0">
           <Threads
             color={[0.8784, 0.8666, 0.9372]}
             amplitude={1}
             distance={0}
             enableMouseInteraction
           />
-        </div>
+        </div> */}
 
         <div className="relative z-10 max-w-3xl space-y-4">
           <p className="text-sm font-semibold uppercase tracking-widest text-gray-200">
