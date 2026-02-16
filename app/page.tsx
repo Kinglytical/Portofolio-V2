@@ -66,6 +66,7 @@ const items = [
 // ];
 
 export default function Home() {
+  
   return (
     <section className="text-white">
       {/* HERO SECTION */}
