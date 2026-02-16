@@ -17,7 +17,7 @@ const projectItems = [
   {
     name: "Sniff Order Management System",
     description:
-      "Internal tracking system to manage vehicle document flow, reducing manual processing.",
+      "Internal tracking system to manage Inventory flow, reducing manual processing.",
     image: "/snifff.png",
     status: "Completed",
     language: ["Google Apps Script", "Sheets", "Automation"],
