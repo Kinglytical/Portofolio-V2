@@ -16,9 +16,7 @@ const useMedia = (
 ): number => {
   const get = () => {
     if (typeof window === "undefined") return defaultValue;
-
     const index = queries.findIndex((q) => window.matchMedia(q).matches);
-
     return values[index] ?? defaultValue;
   };
 
@@ -29,10 +27,10 @@ const useMedia = (
     const handler = () => setValue(get);
     const mqls = queries.map((q) => matchMedia(q));
     mqls.forEach((mql) => mql.addEventListener("change", handler));
-    return () =>
-      mqls.forEach((mql) => mql.removeEventListener("change", handler));
+    return () => mqls.forEach((mql) => mql.removeEventListener("change", handler));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [queriesKey]);
+
   return value;
 };
 
@@ -90,6 +88,9 @@ interface MasonryProps {
   hoverScale?: number;
   blurToFocus?: boolean;
   colorShiftOnHover?: boolean;
+
+  /** perf toggle: preload all images before animating (default true as your original) */
+  preload?: boolean;
 }
 
 const Masonry: React.FC<MasonryProps> = ({
@@ -102,6 +103,7 @@ const Masonry: React.FC<MasonryProps> = ({
   hoverScale = 0.95,
   blurToFocus = true,
   colorShiftOnHover = false,
+  preload = true,
 }) => {
   const columns = useMedia(
     [
@@ -115,7 +117,16 @@ const Masonry: React.FC<MasonryProps> = ({
   );
 
   const [containerRef, { width }] = useMeasure<HTMLDivElement>();
-  const [imagesReady, setImagesReady] = useState(false);
+  const [imagesReady, setImagesReady] = useState(!preload);
+
+  // Keep element refs so GSAP doesn't query DOM via selectors
+  const itemEls = useRef<Map<string, HTMLDivElement>>(new Map());
+
+  const setItemRef = (id: string) => (el: HTMLDivElement | null) => {
+    const map = itemEls.current;
+    if (!el) map.delete(id);
+    else map.set(id, el);
+  };
 
   const getInitialPosition = (item: GridItem) => {
     const containerRect = containerRef.current?.getBoundingClientRect();
@@ -123,10 +134,8 @@ const Masonry: React.FC<MasonryProps> = ({
 
     let direction = animateFrom;
     if (animateFrom === "random") {
-      const dirs = ["top", "bottom", "left", "right"];
-      direction = dirs[
-        Math.floor(Math.random() * dirs.length)
-      ] as typeof animateFrom;
+      const dirs = ["top", "bottom", "left", "right"] as const;
+      direction = dirs[Math.floor(Math.random() * dirs.length)];
     }
 
     switch (direction) {
@@ -149,115 +158,173 @@ const Masonry: React.FC<MasonryProps> = ({
   };
 
   useEffect(() => {
-    preloadImages(items.map((i) => i.img)).then(() => setImagesReady(true));
-  }, [items]);
+    let cancelled = false;
+
+    if (!preload) {
+      setImagesReady(true);
+      return;
+    }
+
+    setImagesReady(false);
+    preloadImages(items.map((i) => i.img)).then(() => {
+      if (!cancelled) setImagesReady(true);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [items, preload]);
 
   const grid = useMemo<GridItem[]>(() => {
     if (!width) return [];
-    const colHeights = new Array(columns).fill(0);
     const gap = 16;
     const totalGaps = (columns - 1) * gap;
     const columnWidth = (width - totalGaps) / columns;
 
-    const result = items.map(child => {
-      const col = colHeights.indexOf(Math.min(...colHeights));
+    const colHeights = new Array(columns).fill(0);
+
+    const result: GridItem[] = [];
+    for (const child of items) {
+      // find shortest column without Math.min(...spread)
+      let col = 0;
+      let minH = colHeights[0];
+      for (let i = 1; i < colHeights.length; i++) {
+        if (colHeights[i] < minH) {
+          minH = colHeights[i];
+          col = i;
+        }
+      }
+
       const x = col * (columnWidth + gap);
-      const height = child.height / 2;
+      const h = child.height / 2;
       const y = colHeights[col];
 
-      colHeights[col] += height + gap;
-      return { ...child, x, y, w: columnWidth, h: height };
-    });
+      colHeights[col] += h + gap;
+
+      result.push({ ...child, x, y, w: columnWidth, h });
+    }
+
     return result;
   }, [columns, items, width]);
 
   const totalHeight = useMemo(() => {
-    if (!grid.length) return 0;
-    return Math.max(...grid.map(item => item.y + item.h));
+    let max = 0;
+    for (const item of grid) max = Math.max(max, item.y + item.h);
+    return max;
   }, [grid]);
 
   const hasMounted = useRef(false);
 
   useLayoutEffect(() => {
     if (!imagesReady) return;
+    const container = containerRef.current;
+    if (!container) return;
 
-    grid.forEach((item, index) => {
-      const selector = `[data-key="${item.id}"]`;
-      const animProps = { x: item.x, y: item.y, width: item.w, height: item.h };
-
+    const ctx = gsap.context(() => {
+      // First mount: animate in
       if (!hasMounted.current) {
-        const start = getInitialPosition(item);
-        gsap.fromTo(
-          selector,
-          {
-            opacity: 0,
-            x: start.x,
-            y: start.y,
-            width: item.w,
-            height: item.h,
-            ...(blurToFocus && { filter: "blur(10px)" }),
-          },
-          {
-            opacity: 1,
-            ...animProps,
-            ...(blurToFocus && { filter: "blur(0px)" }),
-            duration: 0.8,
-            ease: "power3.out",
-            delay: index * stagger,
-          },
-        );
-      } else {
-        gsap.to(selector, {
-          ...animProps,
+        grid.forEach((item, index) => {
+          const el = itemEls.current.get(item.id);
+          if (!el) return;
+
+          const start = getInitialPosition(item);
+
+          gsap.fromTo(
+            el,
+            {
+              opacity: 0,
+              x: start.x,
+              y: start.y,
+              width: item.w,
+              height: item.h,
+              ...(blurToFocus ? { filter: "blur(10px)" } : {}),
+            },
+            {
+              opacity: 1,
+              x: item.x,
+              y: item.y,
+              width: item.w,
+              height: item.h,
+              ...(blurToFocus ? { filter: "blur(0px)" } : {}),
+              duration: 0.8,
+              ease: "power3.out",
+              delay: index * stagger,
+              overwrite: "auto",
+            },
+          );
+        });
+        hasMounted.current = true;
+        return;
+      }
+
+      // Subsequent layout changes: just move/resize
+      grid.forEach((item) => {
+        const el = itemEls.current.get(item.id);
+        if (!el) return;
+
+        gsap.to(el, {
+          x: item.x,
+          y: item.y,
+          width: item.w,
+          height: item.h,
           duration,
           ease,
           overwrite: "auto",
         });
-      }
-    });
+      });
+    }, container);
 
-    hasMounted.current = true;
-  }, [grid, imagesReady, stagger, animateFrom, blurToFocus, duration, ease]);
+    return () => ctx.revert();
+  }, [grid, imagesReady, stagger, animateFrom, blurToFocus, duration, ease, containerRef]);
 
-  const handleMouseEnter = (id: string, element: HTMLElement) => {
+  const handleMouseEnter = (element: HTMLElement) => {
     if (scaleOnHover) {
-      gsap.to(`[data-key="${id}"]`, {
+      gsap.to(element, {
         scale: hoverScale,
-        duration: 0.3,
+        duration: 0.25,
         ease: "power2.out",
+        overwrite: "auto",
       });
     }
     if (colorShiftOnHover) {
-      const overlay = element.querySelector(".color-overlay") as HTMLElement;
-      if (overlay) gsap.to(overlay, { opacity: 0.3, duration: 0.3 });
+      const overlay = element.querySelector(".color-overlay") as HTMLElement | null;
+      if (overlay) gsap.to(overlay, { opacity: 0.3, duration: 0.25, overwrite: "auto" });
     }
   };
 
-  const handleMouseLeave = (id: string, element: HTMLElement) => {
+  const handleMouseLeave = (element: HTMLElement) => {
     if (scaleOnHover) {
-      gsap.to(`[data-key="${id}"]`, {
+      gsap.to(element, {
         scale: 1,
-        duration: 0.3,
+        duration: 0.25,
         ease: "power2.out",
+        overwrite: "auto",
       });
     }
     if (colorShiftOnHover) {
-      const overlay = element.querySelector(".color-overlay") as HTMLElement;
-      if (overlay) gsap.to(overlay, { opacity: 0, duration: 0.3 });
+      const overlay = element.querySelector(".color-overlay") as HTMLElement | null;
+      if (overlay) gsap.to(overlay, { opacity: 0, duration: 0.25, overwrite: "auto" });
     }
   };
 
   return (
-    <div ref={containerRef} className="relative w-full" style={{ height: totalHeight }}>
+    <div
+      ref={containerRef}
+      className="relative w-full"
+      style={{ height: totalHeight }}
+    >
       {grid.map((item) => (
         <div
           key={item.id}
-          data-key={item.id}
+          ref={setItemRef(item.id)}
           className="absolute box-content"
-          style={{ willChange: "transform, width, height, opacity" }}
+          style={{
+            willChange: "transform, width, height, opacity",
+            transform: "translate3d(0,0,0)", // helps GPU compositing
+          }}
           onClick={() => window.open(item.url, "_blank", "noopener")}
-          onMouseEnter={(e) => handleMouseEnter(item.id, e.currentTarget)}
-          onMouseLeave={(e) => handleMouseLeave(item.id, e.currentTarget)}
+          onMouseEnter={(e) => handleMouseEnter(e.currentTarget)}
+          onMouseLeave={(e) => handleMouseLeave(e.currentTarget)}
         >
           <div
             className="relative w-full h-full bg-cover bg-center rounded-[10px] shadow-[0px_10px_50px_-10px_rgba(0,0,0,0.2)] uppercase text-[10px] leading-[10px]"

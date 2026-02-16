@@ -1,13 +1,18 @@
-"use client"
+"use client";
 
-import React, { useEffect, useRef } from 'react';
-import { Renderer, Program, Mesh, Triangle, Color } from 'ogl';
+import React, { useEffect, useRef } from "react";
+import { Renderer, Program, Mesh, Triangle, Color } from "ogl";
 
-interface ThreadsProps {
+interface ThreadsProps
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, "color"> {
   color?: [number, number, number];
   amplitude?: number;
   distance?: number;
   enableMouseInteraction?: boolean;
+  maxDpr?: number;
+  fps?: number;
+  lineCount?: number;
+  pauseWhenHidden?: boolean;
 }
 
 const vertexShader = `
@@ -20,7 +25,7 @@ void main() {
 }
 `;
 
-const fragmentShader = `
+const fragmentShaderBase = `
 precision highp float;
 
 uniform float iTime;
@@ -127,11 +132,22 @@ void main() {
 }
 `;
 
+function clampInt(n: number, min: number, max: number) {
+  return Math.max(min, Math.min(max, Math.round(n)));
+}
+
 const Threads: React.FC<ThreadsProps> = ({
   color = [1, 1, 1],
   amplitude = 1,
   distance = 0,
   enableMouseInteraction = false,
+
+  maxDpr = 1.5,
+  fps = 30,
+  lineCount = 28,
+  pauseWhenHidden = true,
+
+  className,
   ...rest
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -141,11 +157,19 @@ const Threads: React.FC<ThreadsProps> = ({
     if (!containerRef.current) return;
     const container = containerRef.current;
 
+    const safeLineCount = clampInt(lineCount, 10, 40);
+    const fragmentShader = fragmentShaderBase.replace(
+      "const int u_line_count = 40;",
+      `const int u_line_count = ${safeLineCount};`
+    );
+
     const renderer = new Renderer({ alpha: true });
     const gl = renderer.gl;
+
     gl.clearColor(0, 0, 0, 0);
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
     container.appendChild(gl.canvas);
 
     const geometry = new Triangle(gl);
@@ -154,26 +178,36 @@ const Threads: React.FC<ThreadsProps> = ({
       fragment: fragmentShader,
       uniforms: {
         iTime: { value: 0 },
-        iResolution: {
-          value: new Color(gl.canvas.width, gl.canvas.height, gl.canvas.width / gl.canvas.height)
-        },
+        iResolution: { value: new Color(1, 1, 1) },
         uColor: { value: new Color(...color) },
         uAmplitude: { value: amplitude },
         uDistance: { value: distance },
-        uMouse: { value: new Float32Array([0.5, 0.5]) }
-      }
+        uMouse: { value: new Float32Array([0.5, 0.5]) },
+      },
     });
 
     const mesh = new Mesh(gl, { geometry, program });
 
     function resize() {
       const { clientWidth, clientHeight } = container;
-      renderer.setSize(clientWidth, clientHeight);
-      program.uniforms.iResolution.value.r = clientWidth;
-      program.uniforms.iResolution.value.g = clientHeight;
-      program.uniforms.iResolution.value.b = clientWidth / clientHeight;
+      if (clientWidth === 0 || clientHeight === 0) return;
+
+      const dpr = Math.min(window.devicePixelRatio || 1, maxDpr);
+
+      // OGL's setSize sets canvas width/height. We still ensure CSS size is correct.
+      renderer.setSize(clientWidth * dpr, clientHeight * dpr);
+      gl.canvas.style.width = `${clientWidth}px`;
+      gl.canvas.style.height = `${clientHeight}px`;
+
+      gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+
+      // Use physical pixels for correct pixel() scaling inside shader
+      program.uniforms.iResolution.value.r = gl.canvas.width;
+      program.uniforms.iResolution.value.g = gl.canvas.height;
+      program.uniforms.iResolution.value.b = gl.canvas.width / gl.canvas.height;
     }
-    window.addEventListener('resize', resize);
+
+    window.addEventListener("resize", resize, { passive: true });
     resize();
 
     let currentMouse = [0.5, 0.5];
@@ -181,6 +215,7 @@ const Threads: React.FC<ThreadsProps> = ({
 
     function handleMouseMove(e: MouseEvent) {
       const rect = container.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
       const x = (e.clientX - rect.left) / rect.width;
       const y = 1.0 - (e.clientY - rect.top) / rect.height;
       targetMouse = [x, y];
@@ -188,43 +223,95 @@ const Threads: React.FC<ThreadsProps> = ({
     function handleMouseLeave() {
       targetMouse = [0.5, 0.5];
     }
+
     if (enableMouseInteraction) {
-      container.addEventListener('mousemove', handleMouseMove);
-      container.addEventListener('mouseleave', handleMouseLeave);
+      container.addEventListener("mousemove", handleMouseMove, { passive: true });
+      container.addEventListener("mouseleave", handleMouseLeave, { passive: true });
     }
 
+    let paused = false;
+    function onVisibilityChange() {
+      if (!pauseWhenHidden) return;
+      paused = document.hidden;
+    }
+    if (pauseWhenHidden) {
+      document.addEventListener("visibilitychange", onVisibilityChange);
+      paused = document.hidden;
+    }
+
+    let last = 0;
+    const cappedFps = Math.max(1, fps);
+    const frameTime = 1000 / cappedFps;
+
     function update(t: number) {
+      animationFrameId.current = requestAnimationFrame(update);
+
+      if (paused) return;
+
+      // FPS cap
+      if (t - last < frameTime) return;
+      last = t;
+
       if (enableMouseInteraction) {
         const smoothing = 0.05;
         currentMouse[0] += smoothing * (targetMouse[0] - currentMouse[0]);
         currentMouse[1] += smoothing * (targetMouse[1] - currentMouse[1]);
-        program.uniforms.uMouse.value[0] = currentMouse[0];
-        program.uniforms.uMouse.value[1] = currentMouse[1];
+
+        // tiny threshold to avoid pointless uniform writes
+        if (
+          Math.abs(program.uniforms.uMouse.value[0] - currentMouse[0]) > 0.0005 ||
+          Math.abs(program.uniforms.uMouse.value[1] - currentMouse[1]) > 0.0005
+        ) {
+          program.uniforms.uMouse.value[0] = currentMouse[0];
+          program.uniforms.uMouse.value[1] = currentMouse[1];
+        }
       } else {
         program.uniforms.uMouse.value[0] = 0.5;
         program.uniforms.uMouse.value[1] = 0.5;
       }
-      program.uniforms.iTime.value = t * 0.001;
 
+      program.uniforms.iTime.value = t * 0.001;
       renderer.render({ scene: mesh });
-      animationFrameId.current = requestAnimationFrame(update);
     }
+
     animationFrameId.current = requestAnimationFrame(update);
 
     return () => {
       if (animationFrameId.current) cancelAnimationFrame(animationFrameId.current);
-      window.removeEventListener('resize', resize);
+      window.removeEventListener("resize", resize);
+
+      if (pauseWhenHidden) {
+        document.removeEventListener("visibilitychange", onVisibilityChange);
+      }
 
       if (enableMouseInteraction) {
-        container.removeEventListener('mousemove', handleMouseMove);
-        container.removeEventListener('mouseleave', handleMouseLeave);
+        container.removeEventListener("mousemove", handleMouseMove);
+        container.removeEventListener("mouseleave", handleMouseLeave);
       }
-      if (container.contains(gl.canvas)) container.removeChild(gl.canvas);
-      gl.getExtension('WEBGL_lose_context')?.loseContext();
-    };
-  }, [color, amplitude, distance, enableMouseInteraction]);
 
-  return <div ref={containerRef} className="w-full h-full relative" {...rest} />;
+      if (container.contains(gl.canvas)) container.removeChild(gl.canvas);
+
+      // Best-effort release
+      gl.getExtension("WEBGL_lose_context")?.loseContext();
+    };
+  }, [
+    color,
+    amplitude,
+    distance,
+    enableMouseInteraction,
+    maxDpr,
+    fps,
+    lineCount,
+    pauseWhenHidden,
+  ]);
+
+  return (
+    <div
+      ref={containerRef}
+      className={`w-full h-full relative ${className ?? ""}`}
+      {...rest}
+    />
+  );
 };
 
 export default Threads;

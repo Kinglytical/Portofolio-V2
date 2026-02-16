@@ -1,5 +1,3 @@
-"use client";
-
 import Image from "next/image";
 import { Button } from "./ui/button";
 import Link from "next/link";
@@ -17,12 +15,22 @@ const projectItems = [
   {
     name: "Sniff Order Management System",
     description:
-      "Internal tracking system to manage vehicle document flow, reducing manual processing.",
+      "Internal tracking system to manage Inventory flow, reducing manual processing.",
     image: "/snifff.png",
     status: "Completed",
     language: ["Google Apps Script", "Sheets", "Automation"],
     link : "/projects/snifff"
   },
+  {
+    name: "Galo Finance System",
+    description:
+      "Internal Tracking for Financial System to help company to track cash flow",
+    image: "/finance.jpeg",
+    status: "On Progress",
+    language: ["Next.js", "PostgreSQL", "Tailwind", "shadcnUi", "prisma", "trpc"],
+    link : "/projects/galo-finance"
+  },
+  
 ];
 
 export default function Projects() {
@@ -41,7 +49,7 @@ export default function Projects() {
       <div className="max-w-6xl mx-auto grid md:grid-cols-2 lg:grid-cols-3 gap-8">
         {projectItems.map((project, index) => (
           <Link key={index} href={project.link} className="group">
-            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl">
+            <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden transition-all duration-300 ">
               
               {/* Image */}
               <div className="relative h-44 overflow-hidden">
@@ -49,7 +57,7 @@ export default function Projects() {
                   src={project.image}
                   alt={project.name}
                   fill
-                  className="object-cover transition-transform duration-500 group-hover:scale-110"
+                  className="object-cover transition-transform duration-500"
                 />
               </div>
 
