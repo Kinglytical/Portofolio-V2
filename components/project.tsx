@@ -38,7 +38,7 @@ export default function Projects() {
     <section className="bg-[#5a5370] px-6 py-24">
       {/* Header */}
       <div className="max-w-5xl mx-auto text-center space-y-4 mb-16">
-        <h3 className="text-4xl font-bold text-white">Projects</h3>
+        <h2 className="text-4xl font-bold text-white">Projects</h2>
         <p className="text-gray-200 leading-relaxed">
           A collection of applications I've built to solve real business
           problems and improve operational efficiency.
