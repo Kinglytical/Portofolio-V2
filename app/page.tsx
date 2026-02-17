@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import Masonry from "@/components/Masonry";
 import Projects from "@/components/project";
 import Skills from "@/components/skills";
+import CareerTimeline from "@/components/horizontal-timeline/timeline";
 
 const items = [
   {
@@ -142,6 +143,7 @@ export default function Home() {
       </section>
       <Skills />
       <Projects />
+      <CareerTimeline />
     </section>
   );
 }
