@@ -1,7 +1,7 @@
 export const career = [
   {
     date: "2023",
-    company: "PT Example Finance",
+    company: "PT Carbay Services Indonesia",
     role: "Business Analyst",
     project: "BPKB Workflow Optimization",
     title: "Start as Business Analyst",
@@ -10,7 +10,7 @@ export const career = [
   },
   {
     date: "2024",
-    company: "PT Example Finance",
+    company: "PT Carbay Services Indonesia",
     role: "Process Automation Specialist",
     project: "Google Apps Script Automation System",
     title: "Process Automation",
@@ -19,19 +19,19 @@ export const career = [
   },
   {
     date: "2025",
-    company: "Self Learning & Freelance",
-    role: "Full Stack Developer (Learning Phase)",
+    company: "PT Altartek",
+    role: "Full Stack Developer (Learning Phase) and SEO (Intern)",
     project: "Portfolio & Internal Tools Development",
-    title: "Learning Full Stack",
+    title: "SEO",
     description:
       "Transitioned into software development by learning modern web technologies and building real-world applications to solve operational problems.",
   },
   {
     date: "Now",
-    company: "Freelance / Personal Project",
-    role: "Full Stack Developer",
+    company: "PT Altartek",
+    role: "Full Stack Developer (Learning Phase) and SEO (Full Time)",
     project: "Scalable Web Applications",
-    title: "Full Stack Developer",
+    title: "Junior Developer",
     description:
       "Developing scalable web applications with a focus on performance, clean architecture, and translating business needs into digital solutions.",
   },
