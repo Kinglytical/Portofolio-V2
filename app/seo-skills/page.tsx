@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { FaSearch, FaChartLine,FaArrowRight, FaCog, FaCogs } from "react-icons/fa";
-import { SiGoogleanalytics, SiGooglesheets } from "react-icons/si";import { ConsultationModal } from '@/components/consultation-modal';
+import { SiGoogleanalytics, SiGooglesheets } from "react-icons/si";
 export default function SEOSkillsPage() {
   return (
     <div className="min-h-screen bg-[#5a5370] text-white">
@@ -188,7 +188,7 @@ export default function SEOSkillsPage() {
         <div className="mx-auto max-w-6xl">
           <div className="mb-16">
             <h2 className="text-4xl font-bold mb-6 text-center">Complete Expertise</h2>
-            <div className="relative aspect-video rounded-2xl overflow-hidden shadow-xl mb-12 flex items-center justify-center">
+            <div className="relative aspect-video rounded-2xl overflow-hidden border border-white/20 shadow-2xl mb-12 bg-white/5 flex items-center justify-center">
               <Image
                 src="/looker.png"
                 alt="Looker Studio Analytics"
@@ -233,14 +233,7 @@ export default function SEOSkillsPage() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 px-6 border-t border-white/10">
-        <div className="mx-auto max-w-4xl text-center">
-          <h2 className="text-4xl font-bold mb-6">Ready to Transform Your SEO?</h2>
-          <p className="text-xl text-gray-100 mb-8">Let's discuss your SEO strategy and how we can drive sustainable organic growth for your organization.</p>
-          <ConsultationModal />
-        </div>
-      </section>
+
     </div>
   );
 }

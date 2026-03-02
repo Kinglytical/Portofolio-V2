@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FaX } from 'react-icons/fa6';
+import emailjs from '@emailjs/browser';
 import {
   Dialog,
   DialogContent,
@@ -12,6 +13,9 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+
+// Initialize EmailJS (replace with your public key)
+emailjs.init(process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY || '');
 
 export function ConsultationModal() {
   const [isOpen, setIsOpen] = useState(false);
@@ -34,15 +38,28 @@ export function ConsultationModal() {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      console.log('Form submitted:', formData);
-      setIsSubmitting(false);
+    try {
+      await emailjs.send(
+        process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID || '',
+        process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID || '',
+        {
+          to_email: 'saddamgans18@gmail.com',
+          from_name: formData.name,
+          from_email: formData.email,
+          company: formData.company || 'Not provided',
+          message: formData.message,
+        }
+      );
+      
       setIsOpen(false);
       setFormData({ name: '', email: '', company: '', message: '' });
-      // Show success message or handle as needed
-      alert('Thank you for your interest! I will get back to you soon.');
-    }, 1500);
+      alert('Thank you! Your consultation request has been sent. I will get back to you soon.');
+    } catch (error) {
+      console.error('Error sending email:', error);
+      alert('Failed to send request. Please check your EmailJS configuration.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
