@@ -1,3 +1,5 @@
+"use client";
+
 import * as React from "react";
 import Link from "next/link";
 import {
@@ -10,9 +12,17 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 
-export function Navbar() {
+// const components: { title: string; href: string; description: string }[] = [
+//   {
+//     title: "Alert Dialog",
+//     href: "/docs/primitives/alert-dialog",
+//     description:
+//       "A modal dialog that interrupts the user with important content and expects a response.",
+//   },
+// ];
+
+export function NavigationMenuDemo() {
   return (
-    
     <NavigationMenu>
       <NavigationMenuList>
         <NavigationMenuItem>
@@ -23,17 +33,18 @@ export function Navbar() {
         <NavigationMenuItem>
           <NavigationMenuTrigger>Getting Started</NavigationMenuTrigger>
           <NavigationMenuContent>
-            <ul className="w-96">
+            <ul className="w-96 bg-white rounded-md shadow-lg border">
               <ListItem href="/Introduction" title="Introduction">
-                lets know each othere more.
+                lets know each other more.
               </ListItem>
-
               <ListItem href="/projects" title="Projects">
                 Lets look my projects here
               </ListItem>
-
-              <ListItem href="/Timeline" title="Expirience">
+              <ListItem href="/Timeline" title="Experience">
                 lets see how long i have been training for this
+              </ListItem>
+              <ListItem href="/seo-skills" title="SEO Skills">
+                Advanced SEO expertise and strategies
               </ListItem>
             </ul>
           </NavigationMenuContent>
